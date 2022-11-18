@@ -65,7 +65,26 @@ function Product() {
 
   const delBtnHandler = (e) => {
     e.preventDefault();
-    const myUser = JSON.parse(localStorage.getItem("user"));
+  };
+
+  const addBtnHandler = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(document.form1);
+    const response = await axios.post(
+      `http://localhost:3003/store-admin/product/${myUserSid}`,
+      fd
+    );
+    console.log(response.data);
+  };
+
+  const editBtnHandler = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(document.form1);
+    const response = await axios.put(
+      `http://localhost:3003/store-admin/product/${myUserSid}`,
+      fd
+    );
+    console.log(response.data);
   };
 
   return (
@@ -73,6 +92,16 @@ function Product() {
       <div
         onClick={() => {
           setSelectedItem(0);
+          setFormData({
+            src: "",
+            name: "",
+            price: "",
+            type: "",
+            options_types: [],
+            note: "",
+            discount: "",
+            available: "",
+          });
         }}
       >
         新增餐點
@@ -96,7 +125,8 @@ function Product() {
                 onClick={() => {
                   setSelectedItem(product.sid);
                   setFormData({
-                    src: product.sid,
+                    sid: product.sid,
+                    src: product.src,
                     name: product.name,
                     price: product.price,
                     type: product.products_type_sid,
@@ -140,6 +170,12 @@ function Product() {
       ) : (
         <div>
           <form action="" onSubmit={submitHandler} name="form1">
+            <input
+              type="number"
+              value={seletedItem ? formData.sid : ""}
+              name='sid'
+              hidden
+            />
             <label>
               上傳圖片
               <input type="file" name="avatar" />
@@ -150,7 +186,7 @@ function Product() {
               <input
                 type="text"
                 name="name"
-                value={seletedItem ? formData.name : ""}
+                value={!(seletedItem === '') ? formData.name : ''}
                 onChange={(e) => {
                   setFormData({ ...formData, name: e.target.value });
                 }}
@@ -162,7 +198,7 @@ function Product() {
               <input
                 type="number"
                 name="price"
-                value={seletedItem ? formData.price : ""}
+                value={!(seletedItem === '')  ? formData.price : ""}
                 onChange={(e) => {
                   setFormData({ ...formData, price: e.target.value });
                 }}
@@ -172,7 +208,7 @@ function Product() {
             <select
               name="type"
               id=""
-              value={seletedItem ? formData.type : ""}
+              value={!(seletedItem === '')  ? formData.type : ""}
               onChange={(e) => {
                 setFormData({ ...formData, type: e.target.value });
               }}
@@ -192,14 +228,14 @@ function Product() {
                       name="options_types"
                       value={ot.sid}
                       checked={
-                        !seletedItem
+                        (seletedItem === '') 
                           ? false
                           : formData.options_types.includes(ot.sid)
                       }
                       onChange={(e) => {
                         const newData = { ...formData };
                         const index = newData.options_types.indexOf(ot.sid);
-                        index == -1
+                        index === -1
                           ? newData.options_types.push(ot.sid)
                           : newData.options_types.splice(index, 1);
                         setFormData(newData);
@@ -216,7 +252,7 @@ function Product() {
               <input
                 type="text"
                 name="note"
-                value={seletedItem ? formData.note : ""}
+                value={!(seletedItem === '')  ? formData.note : ""}
                 onChange={(e) => {
                   setFormData({ ...formData, note: e.target.value });
                 }}
@@ -228,7 +264,7 @@ function Product() {
               <input
                 type="number"
                 name="discount"
-                value={seletedItem ? formData.discount : ""}
+                value={!(seletedItem === '')  ? formData.discount : ""}
                 onChange={(e) => {
                   setFormData({ ...formData, discount: e.target.value });
                 }}
@@ -240,7 +276,7 @@ function Product() {
               <input
                 type="checkbox"
                 name="available"
-                checked={seletedItem ? !!formData.available : true}
+                checked={!(seletedItem === '')  ? !!formData.available : true}
                 onChange={(e) => {
                   setFormData({
                     ...formData,
@@ -250,7 +286,9 @@ function Product() {
               />
             </label>
 
-            <button>儲存</button>
+            <button onClick={seletedItem ? editBtnHandler : addBtnHandler}>
+              儲存
+            </button>
             <button
               onClick={(e) => {
                 e.preventDefault();
