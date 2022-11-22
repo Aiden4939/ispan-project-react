@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import axios from "axios";
+import InputHash from "../components/InputHash";
 
 function Option() {
   const [data, setData] = useState({
@@ -16,7 +17,7 @@ function Option() {
   });
   const [optionData, setOptionData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(0);
-  const [inputText, setInputText] = useState('')
+  const [inputText, setInputText] = useState("");
 
   const getData = async (shop_sid) => {
     console.log(shop_sid);
@@ -34,9 +35,44 @@ function Option() {
     getData(JSON.parse(localStorage.getItem("user")).sid);
   }, []);
 
-  const insertBtnHandler = () => {
-    
-  }
+  const insertBtnHandler = (e) => {
+    e.preventDefault();
+    const newOptionData = [...optionData];
+    newOptionData.push({
+      sid: 0,
+      name: inputText,
+      price: 0,
+    });
+    setOptionData(newOptionData);
+    setInputText("");
+  };
+
+  const addBtnHandler = async (e) => {
+    e.preventDefault();
+    console.log({ ...formData, optionData });
+    const response = await axios.post(
+      `http://localhost:3003/store-admin/option/${myUserSid}`,
+      { ...formData, optionData }
+    );
+    console.log(response.data);
+  };
+
+  const editBtnHandler = async (e) => {
+    e.preventDefault();
+    console.log({ ...formData, optionData });
+    const response = await axios.put(
+      `http://localhost:3003/store-admin/option/${myUserSid}`,
+      { ...formData, optionData }
+    );
+    console.log(response.data);
+  };
+
+  const delBtnHandler = async (e) => {
+    e.preventDefault();
+    const response = await axios.delete(
+      `http://localhost:3003/store-admin/option/${selectedItem}`
+    );
+  };
   return (
     <>
       <div
@@ -73,9 +109,17 @@ function Option() {
                     min: ot.min,
                     max: ot.max,
                   });
-                  const newOptionData = data.options.filter((opt) => {
-                    return opt.options_type_sid === ot.sid;
-                  });
+                  const newOptionData = data.options
+                    .filter((opt) => {
+                      return opt.options_type_sid === ot.sid;
+                    })
+                    .map((opt) => {
+                      return {
+                        sid: opt.sid,
+                        name: opt.name,
+                        price: opt.price,
+                      };
+                    });
                   console.log(newOptionData);
                   setOptionData(newOptionData);
                 }}
@@ -103,9 +147,6 @@ function Option() {
         ""
       ) : (
         <div>
-        <div>儲存</div>
-        <div>取消</div>
-        <div>刪除</div>
           <form action="" name="form1">
             <input
               type="number"
@@ -147,11 +188,16 @@ function Option() {
               />
             </label>
             <div>
+              <br />
               <h3>選項:</h3>
-              <input type="text" value={inputText} onChange={(e) => {
-                setInputText(e.target.value)
-              }} />
-              <button onClick={insertBtnHandler} >新增</button>
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => {
+                  setInputText(e.target.value);
+                }}
+              />
+              <button onClick={insertBtnHandler}>新增</button>
               <table>
                 {optionData.map((opt, index) => {
                   return (
@@ -197,12 +243,31 @@ function Option() {
                             />
                           </label>
                         </td>
+                        <td>
+                          <i class="fa-solid fa-xmark" onClick={() => {
+                            const newOptionData = [...optionData]
+                            newOptionData.splice(index,1)
+                            setOptionData(newOptionData)
+                          }}></i>
+                        </td>
                       </tr>
                     </>
                   );
                 })}
               </table>
             </div>
+            <button onClick={selectedItem ? editBtnHandler : addBtnHandler}>
+              儲存
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setSelectedItem("");
+              }}
+            >
+              取消
+            </button>
+            {selectedItem ? <button onClick={delBtnHandler}>刪除</button> : ""}
           </form>
         </div>
       )}

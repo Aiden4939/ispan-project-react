@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function Overview() {
+  const [amount, setAmount] = useState(1);
   const [data, setData] = useState({
     types: [],
     products: [],
     options_types: [],
     options: [],
   });
-  const [selectedItem, setSelectedItem] = useState('');
+  const [selectedItem, setSelectedItem] = useState("");
+  const [checkedAmount, setCheckAmount] = useState("");
   const getData = async (shop_sid) => {
     const response = await axios.get(
       `http://localhost:3003/store-admin/overview/${shop_sid}`
@@ -72,7 +74,10 @@ function Overview() {
                       return (
                         <>
                           <label>
-                            <input type="checkbox" name="option" />
+                            <input
+                              type="checkbox"
+                              name="option"
+                            />
                             {opt.name}
                           </label>
                         </>
@@ -81,6 +86,27 @@ function Overview() {
                 </>
               );
             })}
+          <div>
+            <i
+              class="fa-solid fa-plus"
+              onClick={() => {
+                if (amount > 0) setAmount(amount - 1);
+              }}
+            ></i>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => {
+                setAmount(e.target.value);
+              }}
+            />
+            <i
+              class="fa-solid fa-minus"
+              onClick={() => {
+                setAmount(amount + 1);
+              }}
+            ></i>
+          </div>
         </div>
       ) : (
         ""
