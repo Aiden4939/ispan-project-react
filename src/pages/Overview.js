@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import OptionGroup from "../components/OptionGroup";
 
 function Overview() {
   const [amount, setAmount] = useState(1);
@@ -10,7 +11,6 @@ function Overview() {
     options: [],
   });
   const [selectedItem, setSelectedItem] = useState("");
-  const [checkedAmount, setCheckAmount] = useState("");
   const getData = async (shop_sid) => {
     const response = await axios.get(
       `http://localhost:3003/store-admin/overview/${shop_sid}`
@@ -64,26 +64,12 @@ function Overview() {
             })
             .map((ot) => {
               return (
-                <>
+                <div>
                   <h2>{ot.name}</h2>
-                  {data.options
-                    .filter((opt) => {
-                      return opt.options_type_sid === ot.sid;
-                    })
-                    .map((opt) => {
-                      return (
-                        <>
-                          <label>
-                            <input
-                              type="checkbox"
-                              name="option"
-                            />
-                            {opt.name}
-                          </label>
-                        </>
-                      );
-                    })}
-                </>
+                  <div>
+                    <OptionGroup ot={ot} data={data} />
+                  </div>
+                </div>
               );
             })}
           <div>
